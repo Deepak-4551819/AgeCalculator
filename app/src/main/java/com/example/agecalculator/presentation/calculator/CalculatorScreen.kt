@@ -81,7 +81,7 @@ fun CalculatorScreen(
         CalculatorTopBar(
             isDeleteIconVisible = true,
             onBackClick = {},
-            onSaveClick = {},
+            onSaveClick = { onAction(CalculatorAction.SaveOccasion)},
             onDeleteClick = {}
         )
         FlowRow(

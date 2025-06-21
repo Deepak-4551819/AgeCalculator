@@ -1,21 +1,35 @@
 package com.example.agecalculator.presentation.calculator
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.agecalculator.data.local.OccasionDao
+import com.example.agecalculator.data.local.OccasionDatabase
+import com.example.agecalculator.data.local.OccasionEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.periodUntil
 import kotlinx.datetime.until
 
-class CalculatorViewModel : ViewModel() {
+class CalculatorViewModel(
+    application: Application
+) : AndroidViewModel(application) {
+
+    private val occasionDoa: OccasionDao =
+        OccasionDatabase.getDatabase(application).occasionDao()
 
     private val _uistate = MutableStateFlow(CalculatorUiState())
     val uiState: StateFlow<CalculatorUiState> = _uistate.asStateFlow()
 
+    init {
+        getOccasion()
+    }
 
     fun onAction(action: CalculatorAction) {
         when (action) {
@@ -61,6 +75,37 @@ class CalculatorViewModel : ViewModel() {
             is CalculatorAction.SetTitle -> {
                 _uistate.update { it.copy(title = action.title) }
             }
+
+            CalculatorAction.SaveOccasion -> {
+                saveOccasion()
+            }
+        }
+    }
+
+    private fun saveOccasion() {
+        viewModelScope.launch {
+            val occasion = OccasionEntity(
+                id = 1,
+                dateMillis = _uistate.value.fromDateMillis,
+                emoji = _uistate.value.emoji,
+                title = _uistate.value.title
+            )
+            occasionDoa.upsertOccasion(occasion)
+        }
+    }
+
+    private fun getOccasion() {
+        viewModelScope.launch {
+            occasionDoa.getOccasionById(1)?.let { occasion ->
+                _uistate.update {
+                    it.copy(
+                        fromDateMillis = occasion.dateMillis,
+                        emoji = occasion.emoji,
+                        title = occasion.title
+                    )
+                }
+            }
+            calculateStats()
         }
     }
 
