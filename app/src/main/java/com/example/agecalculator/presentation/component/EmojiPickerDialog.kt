@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.agecalculator.presentation.theme.spacing
 
 @Composable
 fun EmojiPickerDialog(
@@ -57,7 +58,7 @@ private fun EmojiGrid(
         items(emojis) { emoji ->
             IconButton(
                 onClick = { onEmojiSelected(emoji) },
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier.padding(MaterialTheme.spacing.extraSmall)
             ) {
                 Text(
                     text = emoji,

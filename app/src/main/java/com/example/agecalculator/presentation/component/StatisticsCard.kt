@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.agecalculator.presentation.calculator.AgeStats
+import com.example.agecalculator.presentation.theme.spacing
 import java.time.Year
 
 @Composable
@@ -29,8 +30,8 @@ fun StatisticsCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(MaterialTheme.spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.small)
         ) {
             Text(text = "Age Statistics",
                 style = MaterialTheme.typography.titleMedium,
