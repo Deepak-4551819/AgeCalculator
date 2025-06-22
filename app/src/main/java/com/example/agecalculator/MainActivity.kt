@@ -7,14 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.agecalculator.presentation.calculator.CalculatorScreen
-import com.example.agecalculator.presentation.calculator.CalculatorViewModel
-import com.example.agecalculator.presentation.dashboard.DashboardScreen
+import com.example.agecalculator.presentation.navigation.NavGraph
 import com.example.agecalculator.presentation.theme.AgeCalculatorTheme
-import org.koin.androidx.compose.koinViewModel
 
 
 class MainActivity : ComponentActivity() {
@@ -23,15 +18,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AgeCalculatorTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    val viewModel : CalculatorViewModel = koinViewModel()
-//                    val state by viewModel.uiState.collectAsStateWithLifecycle()
-//                    CalculatorScreen(
-//                        modifier = Modifier.padding(innerPadding),
-//                        state = state,
-//                        onAction = viewModel::onAction
-//                    )
-                    DashboardScreen(
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
+                    NavGraph(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

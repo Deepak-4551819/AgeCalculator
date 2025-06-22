@@ -6,6 +6,7 @@ import com.example.agecalculator.data.local.OccasionDatabase
 import com.example.agecalculator.data.repository.OccasionRepositoryImpl
 import com.example.agecalculator.domain.repository.OccasionRepository
 import com.example.agecalculator.presentation.calculator.CalculatorViewModel
+import com.example.agecalculator.presentation.dashboard.DashboardViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -17,5 +18,9 @@ val appModule = module {
     single<OccasionDao> { get<OccasionDatabase>().occasionDao() }
 
     singleOf(::OccasionRepositoryImpl).bind<OccasionRepository>()
+
     viewModelOf(::CalculatorViewModel)
+    viewModelOf(::DashboardViewModel)
+
+
 }

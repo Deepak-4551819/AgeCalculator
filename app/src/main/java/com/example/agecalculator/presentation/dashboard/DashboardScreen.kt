@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,29 +36,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.agecalculator.domain.model.Occasion
+import com.example.agecalculator.presentation.calculator.CalculatorAction
+import com.example.agecalculator.presentation.component.CustomDatePickerDialog
 import com.example.agecalculator.presentation.component.StylizedAgeText
 import com.example.agecalculator.presentation.theme.spacing
+import com.example.agecalculator.presentation.util.periodUntil
 import com.example.agecalculator.presentation.util.toFormattedDateString
 
 @Composable
 fun DashboardScreen(
-    modifier: Modifier = Modifier
+    state: DashboardUiState,
+    onAction: (DashboardAction) -> Unit,
+    navigateToCalculatorScreen: (Int?) -> Unit
 ) {
 
-    val dummyOccasions = List(20) {
-        Occasion(
-            id = 1,
-            title = "Birthday",
-            dateMillis = 0L,
-            emoji = "🎂"
+    CustomDatePickerDialog(
+        isOpen = state.isDatePickerDialogOpen,
+        onDismissRequest = { onAction(DashboardAction.DismissDatePicker) },
+        onConfirmButtonClick = { selectedDate ->
+            onAction(DashboardAction.DateSelected(selectedDate))
 
-        )
-    }
+        }
+    )
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         DashboardTopBar(
-            onAddIconClick = { }
+            onAddIconClick = { navigateToCalculatorScreen(null) }
         )
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 400.dp),
@@ -66,12 +72,14 @@ fun DashboardScreen(
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium),
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.medium)
         ) {
-            items(dummyOccasions) { occasion ->
+            items(state.occasions) { occasion ->
                 OccasionCard(
                     modifier = Modifier.fillMaxWidth(),
                     occasion = occasion,
-                    onCalendarIconClick = {},
-                    onClick = {}
+                    onCalendarIconClick = {
+                        onAction(DashboardAction.ShowDatePicker(occasion))
+                    },
+                    onClick = { navigateToCalculatorScreen(occasion.id) }
                 )
             }
         }
@@ -86,6 +94,7 @@ private fun DashboardTopBar(
     onAddIconClick: () -> Unit,
 ) {
     TopAppBar(
+        windowInsets = WindowInsets(0),
         modifier = modifier,
         title = {
             Text(text = "Dashboard")
@@ -109,6 +118,7 @@ private fun OccasionCard(
     onCalendarIconClick: () -> Unit,
     onClick: () -> Unit
 ) {
+    val dateMillis = occasion.dateMillis
     Card(
         modifier = modifier.clickable { onClick() }
     ) {
@@ -123,7 +133,7 @@ private fun OccasionCard(
             Text(text = occasion.emoji, fontSize = 30.sp)
             Column {
                 Text(text = occasion.title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Text(text = occasion.dateMillis.toFormattedDateString(), color = Color.Gray)
+                Text(text = dateMillis.toFormattedDateString(), color = Color.Gray)
             }
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = onCalendarIconClick) {
@@ -142,11 +152,11 @@ private fun OccasionCard(
                     start = MaterialTheme.spacing.small,
                     top = MaterialTheme.spacing.medium
                 ),
-            years = 25,
-            months = 12,
-            days = 28
+            years = dateMillis.periodUntil().years,
+            months = dateMillis.periodUntil().months,
+            days = dateMillis.periodUntil().days
         )
-        FilledIconButton (
+        FilledIconButton(
             onClick = onClick,
             modifier = Modifier
                 .padding(MaterialTheme.spacing.small)
@@ -157,8 +167,9 @@ private fun OccasionCard(
                 contentColor = MaterialTheme.colorScheme.onSurface
             )
         ) {
-            Icon(modifier = Modifier
-                .padding(MaterialTheme.spacing.extraSmall),
+            Icon(
+                modifier = Modifier
+                    .padding(MaterialTheme.spacing.extraSmall),
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = "Show Details"
             )
@@ -169,5 +180,18 @@ private fun OccasionCard(
 @Preview(showBackground = true)
 @Composable
 private fun PreviewDashboardScreen() {
-    DashboardScreen()
+    val dummyOccasions = List(20) {
+        Occasion(
+            id = 1,
+            title = "Birthday",
+            dateMillis = 0L,
+            emoji = "🎂"
+
+        )
+    }
+    DashboardScreen(
+        state = DashboardUiState(occasions = dummyOccasions),
+        onAction = {},
+        navigateToCalculatorScreen = {}
+    )
 }

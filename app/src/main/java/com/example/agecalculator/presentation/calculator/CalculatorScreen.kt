@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -50,9 +51,10 @@ import com.example.agecalculator.presentation.util.toFormattedDateString
 fun CalculatorScreen(
     modifier: Modifier = Modifier,
     state: CalculatorUiState,
-    onAction: (CalculatorAction) -> Unit
+    onAction: (CalculatorAction) -> Unit,
+    navigateUp: () -> Unit
 ) {
-//remember Saveable can also survive the configuration change
+//remember Savable can also survive the configuration change
     //But for that we have a viewmodel(special class to maneging the states in android )
 //    var isEmojiPickerDialogOpen by remember { mutableStateOf(false) }
 //    var emoji by remember { mutableStateOf("🎂") }
@@ -65,11 +67,11 @@ fun CalculatorScreen(
             onAction(CalculatorAction.EmojiSelected(selectedEmoji))
         },
 
-    )
+        )
 
     CustomDatePickerDialog(
         isOpen = state.isDatePickerDialogOpen,
-        onDismissRequest = { onAction(CalculatorAction.DismissDatePicker)},
+        onDismissRequest = { onAction(CalculatorAction.DismissDatePicker) },
         onConfirmButtonClick = { selectedDate ->
             onAction(CalculatorAction.DateSelected(selectedDate))
 
@@ -82,8 +84,8 @@ fun CalculatorScreen(
     ) {
         CalculatorTopBar(
             isDeleteIconVisible = true,
-            onBackClick = {},
-            onSaveClick = { onAction(CalculatorAction.SaveOccasion)},
+            onBackClick = navigateUp,
+            onSaveClick = { onAction(CalculatorAction.SaveOccasion) },
             onDeleteClick = {}
         )
         FlowRow(
@@ -121,6 +123,7 @@ private fun CalculatorTopBar(
     onSaveClick: () -> Unit
 ) {
     TopAppBar(
+        windowInsets = WindowInsets(0),
         modifier = modifier,
         navigationIcon = {
             IconButton(onClick = onBackClick) {
@@ -186,15 +189,15 @@ private fun HeaderSection(
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             value = state.title,
-            onValueChange = {onAction(CalculatorAction.SetTitle(it))},
+            onValueChange = { onAction(CalculatorAction.SetTitle(it)) },
             label = { Text("Title") },
             singleLine = true
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.medium))
         DateSection(
             title = "From",
-            date =state.fromDateMillis.toFormattedDateString(),
-            onDateIconClick = { onAction(CalculatorAction.ShowDatePicker(DateField.FROM))}
+            date = state.fromDateMillis.toFormattedDateString(),
+            onDateIconClick = { onAction(CalculatorAction.ShowDatePicker(DateField.FROM)) }
         )
         Spacer(modifier = Modifier.height(MaterialTheme.spacing.small))
         DateSection(
@@ -260,7 +263,8 @@ private fun PreviewCalculatorScreen() {
     AgeCalculatorTheme {
         CalculatorScreen(
             state = CalculatorUiState(),
-            onAction = {}
+            onAction = {},
+            navigateUp = {}
         )
     }
 
