@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -128,9 +129,11 @@ private fun OccasionCard(
                 .padding(
                     start = MaterialTheme.spacing.small,
                     top = MaterialTheme.spacing.medium
-                )
+                ),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = occasion.emoji, fontSize = 30.sp)
+            Spacer(modifier = Modifier.width(MaterialTheme.spacing.small))
             Column {
                 Text(text = occasion.title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Text(text = dateMillis.toFormattedDateString(), color = Color.Gray)

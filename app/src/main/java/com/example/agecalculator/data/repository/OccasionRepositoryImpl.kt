@@ -22,7 +22,19 @@ class OccasionRepositoryImpl(
 
     override fun getAllOccasions(): Flow<List<Occasion>> {
         return dao.getAllOccasions().map { occasionEntities ->
-            occasionEntities.map { it.toDomain() }
+            if (occasionEntities.isNotEmpty()){
+                occasionEntities.map { it.toDomain() }
+            } else {
+                val default = Occasion(
+                    id = null,
+                    title = "Birthday",
+                    dateMillis = 0L,
+                    emoji = "🎂"
+                )
+                dao.upsertOccasion(default.toEntity())
+                listOf(default)
+            }
+
         }
     }
 

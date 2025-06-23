@@ -1,5 +1,6 @@
 package com.example.agecalculator.presentation.dashboard
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.agecalculator.domain.repository.OccasionRepository
@@ -11,8 +12,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DashboardViewModel(
+    savedStateHandle: SavedStateHandle,
     private val repository: OccasionRepository
 ) : ViewModel() {
+
 
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState = combine(

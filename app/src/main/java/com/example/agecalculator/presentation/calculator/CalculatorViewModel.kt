@@ -1,12 +1,18 @@
 package com.example.agecalculator.presentation.calculator
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.toRoute
 import com.example.agecalculator.domain.model.Occasion
 import com.example.agecalculator.domain.repository.OccasionRepository
+import com.example.agecalculator.presentation.navigation.Route
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -16,12 +22,17 @@ import kotlinx.datetime.periodUntil
 import kotlinx.datetime.until
 
 class CalculatorViewModel(
+    savedStateHandle: SavedStateHandle,
     private val repository: OccasionRepository
 ) : ViewModel(){
 
+    val occasionId = savedStateHandle.toRoute<Route.CalculatorScreen>().id
 
     private val _uistate = MutableStateFlow(CalculatorUiState())
     val uiState: StateFlow<CalculatorUiState> = _uistate.asStateFlow()
+
+    private val _event = Channel<CalculatorEvent>()
+    val event = _event.receiveAsFlow()
 
     init {
         getOccasion()
@@ -75,33 +86,50 @@ class CalculatorViewModel(
             CalculatorAction.SaveOccasion -> {
                 saveOccasion()
             }
+
+            CalculatorAction.DeleteOccasion -> {
+                deleteOccasion()
+            }
         }
     }
 
     private fun saveOccasion() {
         viewModelScope.launch {
             val occasion = Occasion(
-                id = 1,
+                id = occasionId,
                 dateMillis = _uistate.value.fromDateMillis,
                 emoji = _uistate.value.emoji,
                 title = _uistate.value.title
             )
             repository.upsertOccasion(occasion)
+            _event.send(CalculatorEvent.ShowToast("Saved Successfully"))
+            _event.send(CalculatorEvent.NavigateToDashboardScreen)
         }
     }
 
     private fun getOccasion() {
+        if (occasionId == null) return
         viewModelScope.launch {
-            repository.getOccasionById(1)?.let { occasion ->
+            repository.getOccasionById(occasionId)?.let { occasion ->
                 _uistate.update {
                     it.copy(
                         fromDateMillis = occasion.dateMillis,
                         emoji = occasion.emoji,
-                        title = occasion.title
+                        title = occasion.title,
+                        occasionId = occasion.id
                     )
                 }
             }
             calculateStats()
+        }
+    }
+
+    private fun deleteOccasion() {
+        if(occasionId == null ) return
+        viewModelScope.launch {
+            repository.deleteOccasion(occasionId)
+            _event.send(CalculatorEvent.ShowToast("Deleted Successfully"))
+            _event.send(CalculatorEvent.NavigateToDashboardScreen)
         }
     }
 

@@ -39,6 +39,7 @@ fun NavGraph(
             val state by viewModel.uiState.collectAsStateWithLifecycle()
             CalculatorScreen(
                 state = state,
+                event = viewModel.event,
                 onAction = viewModel::onAction,
                 navigateUp = {
                     navController.navigateUp()
